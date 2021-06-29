@@ -10,7 +10,6 @@ function App() {
         <h1>
           Example heading <span className="badge bg-secondary">New</span>
         </h1>
-      
     </div>
   );
 }
