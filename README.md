@@ -11,7 +11,7 @@ Add / Edit / Delete To-Do tasks
 ### Installing
 1. Download the zipped file and unzip it or Clone it
 	```sh
-	git clone https://github.com/mohamedegila/ToDoListApp_BackEnd.git
+	git clone https://github.com/mohamedegila/ToDoListApp_FrontEnd.git
 	```
 2. cd inside the project
     ```sh
@@ -28,7 +28,7 @@ Add / Edit / Delete To-Do tasks
 5. Open up the server
     ```sh
     npm start 
-    
+
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
