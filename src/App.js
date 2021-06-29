@@ -1,15 +1,10 @@
 import "./App.css";
+import ToDO from "./components/to-do/ToDo";
 
 function App() {
   return (
-    <div className="App">
-      
-        <span>
-          <i className="fas fa-trash"></i>
-        </span>
-        <h1>
-          Example heading <span className="badge bg-secondary">New</span>
-        </h1>
+    <div className="container">
+      <ToDO />
     </div>
   );
 }
