@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-function Info() {
+function Info(pr) {
   return (
     <React.Fragment>
       <div className="task-stats ">
