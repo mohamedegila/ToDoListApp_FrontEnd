@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from "react";
-import Pagination from "react-js-pagination";
+
 import AddTask from "./AddTask";
 import DisplayTask from "./DisplayTask";
-import DisplayTasks from "./DisplayTasks";
+
 import Info from "./Info";
 
 function ToDO(props) {
   const [tasks, setTasks] = useState([]);
-  const [errors,setErrors] = useState({});
-  const [successFlag,setSuccessFlag] = useState(false);
+  const [data, setData] = useState([]);
+
+  const [errors, setErrors] = useState({});
+  const [successFlag, setSuccessFlag] = useState(false);
+  const [deleteFlag, setDeleteFlag] = useState(false);
+
 
   useEffect(() => {
     getTasksFromBackEnd();
-  }, [errors,successFlag]);
+  }, [errors, successFlag]);
 
   const getTasksFromBackEnd = () => {
     if (props.debugMode) console.log("### start -> getTasksFromBackEnd ###");
@@ -21,9 +25,11 @@ function ToDO(props) {
     })
       .then((response) => response.json())
       .then((response) => {
-        if (props.debugMode)
-          console.log("Response ... /api/v1/items => ", response);
+        if (props.debugMode){
 
+          console.log("Response ... /api/v1/items => ", response);
+        }
+          setData(response.data);
         let tasks = response.data.data.map((task) => {
           return {
             key: task["id"],
@@ -48,6 +54,85 @@ function ToDO(props) {
     sendTasksToBackEnd(taskName);
   };
 
+  const getTaskIDToDelete = (id) => {
+    if (props.debugMode) {
+      console.log("getTaskIDToDelete => ", id);
+    }
+    deleteTask(id);
+  };
+
+  const getTaskIDToEdit = (id) => {
+    if (props.debugMode) {
+      console.log("getTaskIDToEdit => ", id);
+    }
+    editTask(id);
+  };
+
+  const getPaginationInfo = (pNumber,path)=>{
+    handelPagination(pNumber,path);
+  }
+
+  const handelPagination = (pNumber,path)=>{
+    fetch(`${path}?page=${pNumber}`, {
+      method: "GET",
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (props.debugMode){
+
+          console.log("Response ... /api/v1/items => ", response);
+        }
+          setData(response.data);
+        let tasks = response.data.data.map((task) => {
+          return {
+            key: task["id"],
+            id: task["id"],
+            name: task["name"],
+          };
+        });
+
+        setTasks(tasks);
+      })
+
+      .catch((error) => {
+        console.log("getTasksFromBackEnd ... Error => ", error);
+      });
+  }
+  const deleteTask = (id) => {
+    fetch(`http://localhost:8000/api/v1/item/${id}`, {
+      method: "DELETE",
+      
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        if (response.status === 200) {
+          setErrors({});
+          setSuccessFlag(true);
+          setDeleteFlag(true);
+          if (props.debugMode)
+            console.log(
+              "Response ... /api/v1/item/store response.status === 200 => ",
+              response
+            );
+        } else {
+          setErrors(response.errors);
+          setSuccessFlag(false);
+          setDeleteFlag(false);
+
+          if (props.debugMode)
+            console.log("Response ... /api/v1/item/store => ", response.errors);
+        }
+      })
+
+      .catch((error) => {
+        console.log("sendTasksToBackEnd ... Error => ", error);
+      });
+    if (props.debugMode) console.log("### end ->  sendTasksToBackEnd ###");
+  };
+
+  const editTask = (id) => {
+    console.log(id);
+  };
   const sendTasksToBackEnd = (taskName) => {
     var formdata = new FormData();
     formdata.append("name", taskName);
@@ -59,22 +144,24 @@ function ToDO(props) {
     })
       .then((response) => response.json())
       .then((response) => {
-        if(response.status === 200){
+        if (response.status === 200) {
           setErrors({});
+          setDeleteFlag(false);
           setSuccessFlag(true);
           if (props.debugMode)
-          console.log("Response ... /api/v1/item/store response.status === 200 => ", response);
-        }else{
+            console.log(
+              "Response ... /api/v1/item/store response.status === 200 => ",
+              response
+            );
+        } else {
           setErrors(response.errors);
           setSuccessFlag(false);
+          setDeleteFlag(false);
 
           if (props.debugMode)
-          console.log("Response ... /api/v1/item/store => ", response.errors);
+            console.log("Response ... /api/v1/item/store => ", response.errors);
         }
-        
       })
-
-      
 
       .catch((error) => {
         console.log("sendTasksToBackEnd ... Error => ", error);
@@ -82,19 +169,25 @@ function ToDO(props) {
     if (props.debugMode) console.log("### end ->  sendTasksToBackEnd ###");
   };
 
-
   var validationErrors;
   var success;
 
-  if(JSON.stringify(errors) != JSON.stringify({}))
-  {   
-    validationErrors = (<ul className="alert alert-danger text-center">
-    {errors?Object.keys(errors).map(function(key) { return <li key={errors[key]}>{errors[key][0]}</li>}):''}
-    </ul>);
-  }else if(successFlag){   
-    success = (<ul className="alert alert-success text-center">
-    Task add successfully
-    </ul>);
+  if (JSON.stringify(errors) != JSON.stringify({})) {
+    validationErrors = (
+      <ul className="alert alert-danger text-center">
+        {errors
+          ? Object.keys(errors).map(function (key) {
+              return <li key={errors[key]}>{errors[key][0]}</li>;
+            })
+          : ""}
+      </ul>
+    );
+  } else if (successFlag) {
+
+    if(deleteFlag){
+      success = <ul className="alert alert-success text-center">Task deleted successfully</ul>
+    }else
+      success = <ul className="alert alert-success text-center">Task add successfully</ul>
   }
 
   return (
@@ -108,9 +201,14 @@ function ToDO(props) {
           debugMode={props.debugMode}
           getEnteredTaskName={getEnteredTaskName}
         />
-        <DisplayTask tasks={tasks} debugMode={props.debugMode} />
+        <DisplayTask
+          tasks={tasks}
+          debugMode={props.debugMode}
+          getTaskIDToDelete={getTaskIDToDelete}
+          getTaskIDToEdit={getTaskIDToEdit}
+        />
       </div>
-      <Info debugMode={props.debugMode} />
+      <Info debugMode={props.debugMode} data={data} getPaginationInfo={getPaginationInfo}/>
     </React.Fragment>
   );
 }

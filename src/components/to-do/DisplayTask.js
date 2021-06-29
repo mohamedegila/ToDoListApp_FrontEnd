@@ -1,21 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css'; 
 function DisplayTask(props) {
 
-  const [open,setOpen] = useState(false);
-
   useEffect(() => {
 
-  }, [open]);
+  }, []);
 
 
   const onClickDeleteHandler = (event)=>{
-
     if(props.debugMode){
        console.log("Delete task id = ",event.target.id);
     }
-
    
     confirmAlert({
       title: 'Confirm to submit',
@@ -23,11 +19,11 @@ function DisplayTask(props) {
       buttons: [
         {
           label: 'Yes',
-          onClick: () => alert('Click Yes')
+          onClick: () => props.getTaskIDToDelete(event.target.id)
         },
         {
           label: 'No',
-          // onClick: () => alert('Click No')
+          
         }
       ]
     });
@@ -35,14 +31,6 @@ function DisplayTask(props) {
 
   }
 
-  const oncancelHandler = ()=>{
-    setOpen(false);
-  }
-  const onConfirmHandler = ()=>{
-    console.log("ok");
-    setOpen(false);
-
-  }
   
   const onClickEditHandler = (event)=>{
 
@@ -57,7 +45,7 @@ function DisplayTask(props) {
         <React.Fragment>
           <div className="tasks-content">
             <div className="row" key={task.id}>
-              <span className="task-box col-10">{task.name}</span>
+              <span className="task-box col-10 text-break">{task.name}</span>
               <span className="task-box col-1 text-danger"  
               onClick={onClickDeleteHandler}>
                 <i className="fas fa-trash" id={task.id}></i>
@@ -72,7 +60,7 @@ function DisplayTask(props) {
       );
     });
   } else {
-    var tasks = (
+     tasks = (
       <React.Fragment>
         <div className="tasks-content">
           <span className="no-tasks-message">No Tasks To Show</span>

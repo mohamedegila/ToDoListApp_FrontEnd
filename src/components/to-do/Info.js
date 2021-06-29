@@ -1,19 +1,37 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import Pagination from "react-js-pagination";
 
-function Info(pr) {
+function Info(props) {
+
+  const getData=(pageNumber, path)=>{
+    props.getPaginationInfo(pageNumber, path);
+  }
   return (
     <React.Fragment>
+
+    
+
       <div className="task-stats ">
         <div className="row justify-content-between">
-          <div className="col-10">
+        <div className="col-2">
             Tasks <span className="badge bg-primary">0</span>
           </div>
+        <div className="col-8">
+        <Pagination
+        activePage={props.data.current_page}
+        itemsCountPerPage={props.data.per_page}
+        totalItemsCount={props.data.total}
+        onChange={(pageNumber) => getData(pageNumber, props.data.path)}
+        itemClass="page-item"
+        linkClass="page-link"
+        firstPageText="First"
+        lastPageText="Last"
+      />
+          </div>
+          
 
-          <div className="col">
-            Completed{" "}
-            <span span className="badge bg-info">
-              0
-            </span>
+          <div className="col-2">
+            Completed <span span className="badge bg-info">0</span>
           </div>
         </div>
       </div>
