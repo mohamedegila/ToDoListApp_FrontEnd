@@ -73,14 +73,8 @@ body {
   margin-bottom: 10px;
 }
 
-.todo-container .tasks-content .task-box .delete {
-  float: right;
-  background-color: #e91e63;
-  padding: 4px 10px;
-  color: #fff;
-  font-size: 10px;
-  font-weight: bold;
-  border-radius: 4px;
+.todo-container .tasks-content .task-box  {
+
   cursor: pointer;
 }
 

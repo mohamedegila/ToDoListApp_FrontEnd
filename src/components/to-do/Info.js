@@ -14,7 +14,7 @@ function Info(props) {
       <div className="task-stats ">
         <div className="row justify-content-between">
         <div className="col-2">
-            Tasks <span className="badge bg-primary">0</span>
+            Tasks <span className="badge bg-primary">{ props.data.total}</span>
           </div>
         <div className="col-8">
         <Pagination
@@ -31,7 +31,7 @@ function Info(props) {
           
 
           <div className="col-2">
-            Completed <span span className="badge bg-info">0</span>
+            Completed <span span className="badge bg-info">{props.completedData}</span>
           </div>
         </div>
       </div>

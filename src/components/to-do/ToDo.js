@@ -8,15 +8,37 @@ import Info from "./Info";
 function ToDO(props) {
   const [tasks, setTasks] = useState([]);
   const [data, setData] = useState([]);
+  const [completedData, setCompletedData] = useState(0);
 
   const [errors, setErrors] = useState({});
   const [successFlag, setSuccessFlag] = useState(false);
   const [deleteFlag, setDeleteFlag] = useState(false);
 
-
   useEffect(() => {
     getTasksFromBackEnd();
+    // getCompletedTasks();
   }, [errors, successFlag]);
+
+  const getTaskStatus = (id) => {
+    setTasksState(id);
+    getTasksFromBackEnd();
+
+  }
+  const setTasksState = (id) => {
+    fetch(`http://127.0.0.1:8000/api/v1/item/${id}/change-state`, {
+      method: "GET",
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        setCompletedData(response.count);
+        setTasks(tasks);
+      })
+
+      .catch((error) => {
+        console.log("getTasksFromBackEnd ... Error => ", error);
+      });
+    if (props.debugMode) console.log("### end ->  getTasksFromBackEnd ###");
+  };
 
   const getTasksFromBackEnd = () => {
     if (props.debugMode) console.log("### start -> getTasksFromBackEnd ###");
@@ -25,16 +47,18 @@ function ToDO(props) {
     })
       .then((response) => response.json())
       .then((response) => {
-        if (props.debugMode){
-
+        if (props.debugMode) {
           console.log("Response ... /api/v1/items => ", response);
         }
-          setData(response.data);
+        setCompletedData(response.completed)
+        setData(response.data);
         let tasks = response.data.data.map((task) => {
           return {
             key: task["id"],
             id: task["id"],
             name: task["name"],
+            completed: task["completed"],
+
           };
         });
 
@@ -68,21 +92,20 @@ function ToDO(props) {
     editTask(id);
   };
 
-  const getPaginationInfo = (pNumber,path)=>{
-    handelPagination(pNumber,path);
-  }
+  const getPaginationInfo = (pNumber, path) => {
+    handelPagination(pNumber, path);
+  };
 
-  const handelPagination = (pNumber,path)=>{
+  const handelPagination = (pNumber, path) => {
     fetch(`${path}?page=${pNumber}`, {
       method: "GET",
     })
       .then((response) => response.json())
       .then((response) => {
-        if (props.debugMode){
-
+        if (props.debugMode) {
           console.log("Response ... /api/v1/items => ", response);
         }
-          setData(response.data);
+        setData(response);
         let tasks = response.data.data.map((task) => {
           return {
             key: task["id"],
@@ -97,11 +120,10 @@ function ToDO(props) {
       .catch((error) => {
         console.log("getTasksFromBackEnd ... Error => ", error);
       });
-  }
+  };
   const deleteTask = (id) => {
     fetch(`http://localhost:8000/api/v1/item/${id}`, {
       method: "DELETE",
-      
     })
       .then((response) => response.json())
       .then((response) => {
@@ -183,11 +205,18 @@ function ToDO(props) {
       </ul>
     );
   } else if (successFlag) {
-
-    if(deleteFlag){
-      success = <ul className="alert alert-success text-center">Task deleted successfully</ul>
-    }else
-      success = <ul className="alert alert-success text-center">Task add successfully</ul>
+    if (deleteFlag) {
+      success = (
+        <ul className="alert alert-success text-center">
+          Task deleted successfully
+        </ul>
+      );
+    } else
+      success = (
+        <ul className="alert alert-success text-center">
+          Task add successfully
+        </ul>
+      );
   }
 
   return (
@@ -206,9 +235,15 @@ function ToDO(props) {
           debugMode={props.debugMode}
           getTaskIDToDelete={getTaskIDToDelete}
           getTaskIDToEdit={getTaskIDToEdit}
+          getTaskStatus={getTaskStatus}
         />
       </div>
-      <Info debugMode={props.debugMode} data={data} getPaginationInfo={getPaginationInfo}/>
+      <Info
+        debugMode={props.debugMode}
+        data={data}
+        completedData={completedData}
+        getPaginationInfo={getPaginationInfo}
+      />
     </React.Fragment>
   );
 }
