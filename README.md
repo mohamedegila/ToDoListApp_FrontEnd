@@ -2,12 +2,33 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+# To-Do List application
 
-In the project directory, you can run:
+Build an application for managing user’s To-Do list and functionality below:
+View To-Do List
+Add / Edit / Delete To-Do tasks
 
-### `yarn start`
-
+### Installing
+1. Download the zipped file and unzip it or Clone it
+	```sh
+	git clone https://github.com/mohamedegila/ToDoListApp_BackEnd.git
+	```
+2. cd inside the project
+    ```sh
+    cd ToDoListApp_BackEnd
+    ```
+3.  Run this command to download composer packages
+    ```sh
+    npm install
+    ```
+4. Run this command to update composer packages
+    ```sh
+    npm update
+    ```
+5. Open up the server
+    ```sh
+    npm start 
+    
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
