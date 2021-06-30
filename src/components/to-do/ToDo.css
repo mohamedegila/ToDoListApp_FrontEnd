@@ -69,12 +69,24 @@ body {
   padding: 10px;
 }
 
+.todo-container .tasks-content > div {
+  
+  background-color: #fff;
+
+  padding: 10px;
+}
+
 .todo-container .tasks-content > span:not(:last-child) {
   margin-bottom: 10px;
 }
 
-.todo-container .tasks-content .task-box  {
+.todo-container .tasks-content > div:not(:last-child) {
+  margin-bottom: 10px;
+}
 
+.todo-container .tasks-content .task-box  {
+  color: #777;
+  font-size: 15px;
   cursor: pointer;
 }
 
@@ -89,13 +101,13 @@ body {
   font-size: 12px;
 }
 
-.task-stats .tasks-count {
+/* .task-stats .tasks-count {
   width: 50%;
   float: left;
   padding: 10px;
-}
+} */
 
-.task-stats .tasks-completed {
+/* .task-stats .tasks-completed {
   width: 50%;
   float: right;
   padding: 10px;
@@ -117,4 +129,4 @@ body {
 
 .task-stats .tasks-completed span {
   background-color: #03a9f4;
-}
+} */

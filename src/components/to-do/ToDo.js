@@ -13,6 +13,8 @@ function ToDO(props) {
   const [errors, setErrors] = useState({});
   const [successFlag, setSuccessFlag] = useState(false);
   const [deleteFlag, setDeleteFlag] = useState(false);
+  const [updateFlag, setUpdateFlag] = useState(false);
+
 
   useEffect(() => {
     getTasksFromBackEnd();
@@ -85,11 +87,11 @@ function ToDO(props) {
     deleteTask(id);
   };
 
-  const getTaskIDToEdit = (id) => {
+  const getTaskIDToEdit = (id,name,completed) => {
     if (props.debugMode) {
-      console.log("getTaskIDToEdit => ", id);
+      console.log("getTaskIDToEdit => ", id,name,completed);
     }
-    editTask(id);
+    editTask(id,name,completed);
   };
 
   const getPaginationInfo = (pNumber, path) => {
@@ -131,6 +133,8 @@ function ToDO(props) {
           setErrors({});
           setSuccessFlag(true);
           setDeleteFlag(true);
+          setUpdateFlag(false);
+
           if (props.debugMode)
             console.log(
               "Response ... /api/v1/item/store response.status === 200 => ",
@@ -140,6 +144,7 @@ function ToDO(props) {
           setErrors(response.errors);
           setSuccessFlag(false);
           setDeleteFlag(false);
+          setUpdateFlag(false);
 
           if (props.debugMode)
             console.log("Response ... /api/v1/item/store => ", response.errors);
@@ -152,8 +157,39 @@ function ToDO(props) {
     if (props.debugMode) console.log("### end ->  sendTasksToBackEnd ###");
   };
 
-  const editTask = (id) => {
-    console.log(id);
+  const editTask = (id,name,completed) => {
+    var formdata = new FormData();
+   
+    
+    formdata.append('id',id);
+    formdata.append('name',name);
+    formdata.append('completed',completed);
+    
+    fetch(`http://127.0.0.1:8000/api/v1/item/${id}?_method=PUT`, {
+        method: 'POST',
+        headers: {'X-Requested-With':'XMLHttpRequest'},
+        body: formdata
+    }).then((response) => response.json())
+    .then( response => {
+        console.log("response.errors",response.errors);
+        if(response.status === 200){
+          setUpdateFlag(true);
+          setErrors({});
+          setDeleteFlag(false);
+          setSuccessFlag(true);
+            
+        }else{
+            setErrors(response.errors);
+
+            
+            setUpdateFlag(false);
+            setDeleteFlag(false);
+            setSuccessFlag(false); 
+        }
+    }).catch(error => {
+        console.log("error",error);
+        
+        });
   };
   const sendTasksToBackEnd = (taskName) => {
     var formdata = new FormData();
@@ -169,6 +205,7 @@ function ToDO(props) {
         if (response.status === 200) {
           setErrors({});
           setDeleteFlag(false);
+          setUpdateFlag(false);
           setSuccessFlag(true);
           if (props.debugMode)
             console.log(
@@ -179,6 +216,8 @@ function ToDO(props) {
           setErrors(response.errors);
           setSuccessFlag(false);
           setDeleteFlag(false);
+          setUpdateFlag(false);
+
 
           if (props.debugMode)
             console.log("Response ... /api/v1/item/store => ", response.errors);
@@ -196,7 +235,7 @@ function ToDO(props) {
 
   if (JSON.stringify(errors) != JSON.stringify({})) {
     validationErrors = (
-      <ul className="alert alert-danger text-center">
+      <ul className="todo-container alert alert-danger text-center">
         {errors
           ? Object.keys(errors).map(function (key) {
               return <li key={errors[key]}>{errors[key][0]}</li>;
@@ -207,13 +246,20 @@ function ToDO(props) {
   } else if (successFlag) {
     if (deleteFlag) {
       success = (
-        <ul className="alert alert-success text-center">
+        <ul className="todo-container alert alert-success text-center">
           Task deleted successfully
         </ul>
       );
-    } else
+    }else if (updateFlag) {
       success = (
-        <ul className="alert alert-success text-center">
+        <ul className="todo-container alert alert-success text-center">
+          Task updated successfully
+        </ul>
+      );
+    } 
+    else
+      success = (
+        <ul className="todo-container alert alert-success text-center">
           Task add successfully
         </ul>
       );
