@@ -4,6 +4,7 @@ import Pagination from "react-js-pagination";
 function Info(props) {
 
   const getData=(pageNumber, path)=>{
+    
     props.getPaginationInfo(pageNumber, path);
   }
   return (

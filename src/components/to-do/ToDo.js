@@ -9,38 +9,24 @@ function ToDO(props) {
   const [tasks, setTasks] = useState([]);
   const [data, setData] = useState([]);
   const [completedData, setCompletedData] = useState(0);
+  const [cPage, setCPage] = useState(0);
+  const [path, setCPath] = useState("");
+
+
+
 
   const [errors, setErrors] = useState({});
   const [successFlag, setSuccessFlag] = useState(false);
   const [deleteFlag, setDeleteFlag] = useState(false);
   const [updateFlag, setUpdateFlag] = useState(false);
+  const [completeFlag, setCompleteFlag] = useState(false);
+  const [add, setAdd] = useState(false);
+
+
 
 
   useEffect(() => {
-    getTasksFromBackEnd();
-    // getCompletedTasks();
-  }, [errors, successFlag]);
-
-  const getTaskStatus = (id) => {
-    setTasksState(id);
-    getTasksFromBackEnd();
-
-  }
-  const setTasksState = (id) => {
-    fetch(`http://127.0.0.1:8000/api/v1/item/${id}/change-state`, {
-      method: "GET",
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        setCompletedData(response.count);
-        setTasks(tasks);
-      })
-
-      .catch((error) => {
-        console.log("getTasksFromBackEnd ... Error => ", error);
-      });
-    if (props.debugMode) console.log("### end ->  getTasksFromBackEnd ###");
-  };
+    setAdd(false);
 
   const getTasksFromBackEnd = () => {
     if (props.debugMode) console.log("### start -> getTasksFromBackEnd ###");
@@ -72,6 +58,38 @@ function ToDO(props) {
       });
     if (props.debugMode) console.log("### end ->  getTasksFromBackEnd ###");
   };
+    getTasksFromBackEnd();
+    
+    // getCompletedTasks();
+  }, [add]);
+
+  const getTaskStatus = (id) => {
+    setTasksState(id);
+    // getTasksFromBackEnd();
+
+  }
+  const setTasksState = (id) => {
+    fetch(`http://127.0.0.1:8000/api/v1/item/${id}/change-state`, {
+      method: "GET",
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        setCompletedData(response.count);
+          setErrors({});
+          setSuccessFlag(true);
+          setDeleteFlag(false);
+          setUpdateFlag(false);
+          setCompleteFlag(true);
+          handelPagination(cPage, path);
+        
+      })
+
+      .catch((error) => {
+        console.log("getTasksFromBackEnd ... Error => ", error);
+      });
+    if (props.debugMode) console.log("### end ->  getTasksFromBackEnd ###");
+  };
+
 
   const getEnteredTaskName = (taskName) => {
     if (props.debugMode) {
@@ -95,6 +113,10 @@ function ToDO(props) {
   };
 
   const getPaginationInfo = (pNumber, path) => {
+
+    pNumber = pNumber === 0 ? 1 : pNumber;
+    setCPage(pNumber);
+    setCPath(path);
     handelPagination(pNumber, path);
   };
 
@@ -102,21 +124,24 @@ function ToDO(props) {
     fetch(`${path}?page=${pNumber}`, {
       method: "GET",
     })
-      .then((response) => response.json())
-      .then((response) => {
-        if (props.debugMode) {
-          console.log("Response ... /api/v1/items => ", response);
-        }
-        setData(response);
-        let tasks = response.data.data.map((task) => {
-          return {
-            key: task["id"],
-            id: task["id"],
-            name: task["name"],
-          };
-        });
+    .then((response) => response.json())
+    .then((response) => {
+      if (props.debugMode) {
+        console.log("Response ... /api/v1/items => ", response);
+      }
+      setCompletedData(response.completed)
+      setData(response.data);
+      let tasks = response.data.data.map((task) => {
+        return {
+          key: task["id"],
+          id: task["id"],
+          name: task["name"],
+          completed: task["completed"],
 
-        setTasks(tasks);
+        };
+      });
+
+      setTasks(tasks);
       })
 
       .catch((error) => {
@@ -134,6 +159,8 @@ function ToDO(props) {
           setSuccessFlag(true);
           setDeleteFlag(true);
           setUpdateFlag(false);
+          setCompleteFlag(false);
+          handelPagination(cPage, path);
 
           if (props.debugMode)
             console.log(
@@ -145,7 +172,8 @@ function ToDO(props) {
           setSuccessFlag(false);
           setDeleteFlag(false);
           setUpdateFlag(false);
-
+          setCompleteFlag(false);
+          
           if (props.debugMode)
             console.log("Response ... /api/v1/item/store => ", response.errors);
         }
@@ -177,10 +205,13 @@ function ToDO(props) {
           setErrors({});
           setDeleteFlag(false);
           setSuccessFlag(true);
-            
+          setCompleteFlag(false);
+          handelPagination(cPage, path);
+         
         }else{
             setErrors(response.errors);
 
+          setCompleteFlag(false);
             
             setUpdateFlag(false);
             setDeleteFlag(false);
@@ -202,11 +233,13 @@ function ToDO(props) {
     })
       .then((response) => response.json())
       .then((response) => {
-        if (response.status === 200) {
+        if (response.status === 201) {
           setErrors({});
           setDeleteFlag(false);
           setUpdateFlag(false);
           setSuccessFlag(true);
+          setCompleteFlag(false);
+          setAdd(true);
           if (props.debugMode)
             console.log(
               "Response ... /api/v1/item/store response.status === 200 => ",
@@ -217,6 +250,7 @@ function ToDO(props) {
           setSuccessFlag(false);
           setDeleteFlag(false);
           setUpdateFlag(false);
+          setCompleteFlag(false);
 
 
           if (props.debugMode)
@@ -233,7 +267,7 @@ function ToDO(props) {
   var validationErrors;
   var success;
 
-  if (JSON.stringify(errors) != JSON.stringify({})) {
+  if (JSON.stringify(errors) !== JSON.stringify({})) {
     validationErrors = (
       <ul className="todo-container alert alert-danger text-center">
         {errors
@@ -256,7 +290,14 @@ function ToDO(props) {
           Task updated successfully
         </ul>
       );
-    } 
+
+    }else if (completeFlag) {
+      success = (
+        <ul className="todo-container alert alert-success text-center">
+          Task Completed flag updated successfully
+        </ul>
+      ); 
+      }
     else
       success = (
         <ul className="todo-container alert alert-success text-center">

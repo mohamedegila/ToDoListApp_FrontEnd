@@ -11,6 +11,8 @@ function DisplayTask(props) {
   const [taskName, setTaskName] = useState("");
 
   const [completedTask, setCompletedTask] = useState(0);
+  
+
 
   const [taskN, setTask] = useState("");
   const [taskID, setTaskID] = useState(0);
@@ -23,7 +25,9 @@ function DisplayTask(props) {
     e.preventDefault();
   };
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    
+  }, []);
 
   const getTaskFromBackEnd = (id) => {
     if (props.debugMode) console.log("### start -> getTasksFromBackEnd ###");
@@ -86,8 +90,9 @@ function DisplayTask(props) {
     getTaskFromBackEnd(event.target.id);
     setShow(true);
   };
+  var tasks;
   if (props.tasks.length > 0) {
-    var tasks = props.tasks.map((task) => {
+    tasks = props.tasks.map((task) => {
       return (
         <React.Fragment>
           {/* model */}
@@ -125,10 +130,10 @@ function DisplayTask(props) {
                       name="Country"
                       onChange={onChangeTaskCompletedHandler}
                     >
-                      <option value="1" selected={completedTask == 1}>
+                      <option value="1" selected={completedTask === 1}>
                         yes
                       </option>
-                      <option value="0" selected={completedTask == 0}>
+                      <option value="0" selected={completedTask === 0}>
                         no
                       </option>
                     </select>
@@ -179,7 +184,7 @@ function DisplayTask(props) {
       );
     });
   } else {
-    var tasks = (
+    tasks = (
       <React.Fragment>
         <div className="tasks-content">
           <span className="no-tasks-message">No Tasks To Show</span>
