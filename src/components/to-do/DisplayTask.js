@@ -1,34 +1,61 @@
-import React, { useState, useEffect } from "react";
-import { confirmAlert } from "react-confirm-alert"; // Import
+import React, { useState } from "react";
+import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
-
 import { Modal, Button } from "react-bootstrap";
 
 function DisplayTask(props) {
+  // state initialization
   const [, updateState] = React.useState();
   const forceUpdate = React.useCallback(() => updateState({}), []);
   const [show, setShow] = useState(false);
   const [taskName, setTaskName] = useState("");
 
   const [completedTask, setCompletedTask] = useState(0);
-  
-
-
   const [taskN, setTask] = useState("");
   const [taskID, setTaskID] = useState(0);
 
+  /*************************************************************************
+   * Name        : handleClose                                             *
+   * Params      : None                                                    *
+   *                                                                       *
+   * return      : None                                                    *
+   *                                                                       *
+   * Description : Function to Handel onClick event and set show to false  *
+   *               to close confirmation modal                             *
+   *                                                                       *
+   *               this function called on event                           *
+   *************************************************************************/
   const handleClose = () => setShow(false);
-  const handleUpdate = (e) => {
-    console.log("Update => ", e.target.id);
-    props.getTaskIDToEdit(taskID,taskName,completedTask);
+
+  /***************************************************************************
+   * Name        : handleUpdate                                              *
+   * Params      : event                                                     *
+   *                                                                         *
+   * return      : None                                                      *
+   *                                                                         *
+   * Description : Function to Handel onClick event and set show to false    *
+   *               and call ' getTaskIDToEdit' from parent,                  *
+   *               passing [taskID, taskName, completedTask]                 *
+   *               and preventDefault                                        *
+   *                                                                         *
+   *               this function called on event                             *
+   ***************************************************************************/
+  const handleUpdate = (event) => {
+    if (props.debugMode) console.log("Update => ", event.target.id);
+    props.getTaskIDToEdit(taskID, taskName, completedTask);
     setShow(false);
-    e.preventDefault();
+    event.preventDefault();
   };
 
-  useEffect(() => {
-    
-  }, []);
-
+  /***************************************************************************
+   * Name        : getTaskFromBackEnd                                        *
+   * Params      : id -> Number                                              *
+   *                                                                         *
+   * return      : None                                                      *
+   *                                                                         *
+   * Description : Function to get data to selected edit task                *
+   *                                                                         *
+   ***************************************************************************/
   const getTaskFromBackEnd = (id) => {
     if (props.debugMode) console.log("### start -> getTasksFromBackEnd ###");
     fetch(`http://127.0.0.1:8000/api/v1/item/${id}`, {
@@ -48,16 +75,47 @@ function DisplayTask(props) {
       });
   };
 
+  /*********************************************************************
+   * Name        : onChangeTaskNameHandler                             *
+   * Params      : event                                               *
+   *                                                                   *
+   * return      : None                                                *
+   *                                                                   *
+   * Description : Function to Handel onChang event and set task name  *
+   *               entered value                                       *
+   *                                                                   *
+   *               this function called on event                       *
+   *********************************************************************/
   const onChangeTaskNameHandler = (event) => {
-    console.log("onClickTaskNameHandler -> ", event.target.value);
     setTaskName(event.target.value);
   };
 
+  /*********************************************************************
+   * Name        : onChangeTaskCompletedHandler                        *
+   * Params      : event                                               *
+   *                                                                   *
+   * return      : None                                                *
+   *                                                                   *
+   * Description : Function to Handel onClick event and set completed  *
+   *               entered value                                       *
+   *                                                                   *
+   *               this function called on event                       *
+   *********************************************************************/
   const onChangeTaskCompletedHandler = (event) => {
-    console.log("onClickTaskCompletedHandler -> ", event.target.value);
     setCompletedTask(event.target.value);
   };
 
+  /*********************************************************************
+   * Name        : onClickDeleteHandler                                *
+   * Params      : event                                               *
+   *                                                                   *
+   * return      : None                                                *
+   *                                                                   *
+   * Description : Function to Handel onClick event and show           *
+   *               confirmAlert to confirm delete task                 *
+   *                                                                   *
+   *               this function called on event                       *
+   *********************************************************************/
   const onClickDeleteHandler = (event) => {
     if (props.debugMode) {
       console.log("Delete task id = ", event.target.id);
@@ -78,10 +136,32 @@ function DisplayTask(props) {
     });
   };
 
+  /*********************************************************************
+   * Name        : onClickCompletedHandler                             *
+   * Params      : event                                               *
+   *                                                                   *
+   * return      : None                                                *
+   *                                                                   *
+   * Description : Function to Handel onClick event and call           *
+   *               'getTaskStatus' from parent passing task id         *
+   *                                                                   *
+   *               this function called on event                       *
+   *********************************************************************/
   const onClickCompletedHandler = (event) => {
     props.getTaskStatus(event.target.id);
   };
 
+  /**********************************************************************
+   * Name        : onClickEditHandler                                   *
+   * Params      : event                                                *
+   *                                                                    *
+   * return      : None                                                 *
+   *                                                                    *
+   * Description : Function to Handel onClick event and show edit modal *
+   *               also it set id,show and call 'getTaskFromBackEnd'    *
+   *                                                                    *
+   *               this function called on event                        *
+   **********************************************************************/
   const onClickEditHandler = (event) => {
     if (props.debugMode) {
       console.log("Edit task id = ", event.target.id);
@@ -90,7 +170,9 @@ function DisplayTask(props) {
     getTaskFromBackEnd(event.target.id);
     setShow(true);
   };
+
   var tasks;
+  //Handel if there's data to show or not
   if (props.tasks.length > 0) {
     tasks = props.tasks.map((task) => {
       return (

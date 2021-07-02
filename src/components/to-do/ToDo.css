@@ -100,33 +100,3 @@ body {
   width: 600px;
   font-size: 12px;
 }
-
-/* .task-stats .tasks-count {
-  width: 50%;
-  float: left;
-  padding: 10px;
-} */
-
-/* .task-stats .tasks-completed {
-  width: 50%;
-  float: right;
-  padding: 10px;
-  text-align: right;
-}
-
-.task-stats .tasks-count span,
-.task-stats .tasks-completed span {
-  color: #fff;
-  padding: 1px 5px;
-  font-size: 10px;
-  border-radius: 4px;
-  font-weight: bold;
-}
-
-.task-stats .tasks-count span {
-  background-color: #e91e63;
-}
-
-.task-stats .tasks-completed span {
-  background-color: #03a9f4;
-} */
